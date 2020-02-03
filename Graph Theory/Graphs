@@ -1,0 +1,102 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define MAXN 100000
+#define level 18
+#define INF 0x3f
+
+vector <int> graph[MAXN];
+int arr[2][MAXN];
+int bfs(int u, int v)
+{
+
+    memset(arr,INF,sizeof(arr));
+    int nv=arr[0][0];
+    queue<int>q[2];
+    arr[0][u]=arr[1][v]=0;
+    q[0].push(u);
+    q[1].push(v);
+    while(!(q[1].empty()&&q[0].empty()))
+    {
+        if(!q[0].empty())
+        {
+            bool queueNum=0;
+            int cur=q[queueNum].front();
+
+            q[queueNum].pop();
+            for(int fut:graph[cur])
+            {
+                if(arr[queueNum][fut]>arr[queueNum][cur]+1)
+                {
+                    arr[queueNum][fut]=arr[queueNum][cur]+1;
+                    if(arr[!queueNum][fut]!=nv&&arr[queueNum][fut]!=nv)
+                    {
+                        printf("q1 fut=%d %d %d\n",fut,arr[!queueNum][fut],arr[queueNum][fut]);
+                        return (arr[!queueNum][fut]+arr[queueNum][fut]);
+                    }
+                    q[queueNum].push(fut);
+                }
+            }
+        }
+        if(!q[1].empty())
+        {
+            bool queueNum=1;
+            int cur=q[queueNum].front();
+
+            q[queueNum].pop();
+            for(int fut:graph[cur])
+            {
+
+                if(arr[queueNum][fut]>arr[queueNum][cur]+1)
+                {
+                    arr[queueNum][fut]=arr[queueNum][cur]+1;
+                    if(arr[!queueNum][fut]!=nv&&arr[queueNum][fut]!=nv)
+                    {
+
+                        printf("q2 fut=%d %d %d\n",fut,arr[!queueNum][fut],arr[queueNum][fut]);
+                        return (arr[!queueNum][fut]+arr[queueNum][fut]);
+                    }
+                    q[queueNum].push(fut);
+                }
+            }
+        }
+
+    }
+}
+
+void addEdge(int u,int v)
+{
+    graph[u].push_back(v);
+    graph[v].push_back(u);
+}
+
+// driver function
+int main()
+{
+
+    int n,m,q;
+    scanf("%d %d %d",&n,&m,&q);
+    for(int i=0; i<m; i++)
+    {
+        int a,b;
+        scanf("%d %d",&a,&q);
+        addEdge(a,b);
+
+    }
+    while(1)
+    {
+
+        int a,b;
+        cin>>a>>b;
+        printf("distance(%d, %d) = %d \n",a,b,bfs(a,b));
+        for(int i=0; i<2; i++)
+        {
+            for(int j=0; j<=5; j++)
+            {
+                printf("%d ",arr[i][j]);
+            }
+            printf("\n");
+        }
+    }
+
+    return 0;
+}
