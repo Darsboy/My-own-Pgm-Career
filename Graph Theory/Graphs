@@ -4,7 +4,7 @@ using namespace std;
 #define INF 0x3f
 
 vector <int> graph[MAXN];
-int dist[MAXN], from[MAXN],idx[MAXN], level;
+int dist[MAXN], from[MAXN];
 bool vis[MAXN];
 int bfs(int u, int v)
 {
@@ -12,7 +12,6 @@ int bfs(int u, int v)
     memset(vis, 0, sizeof(vis));
     vis[u] = vis[v] = 1;
     dist[u] = dist[v] = 0;
-    idx[u] = idx[v] = level;
     from[u] = u;
     from[v] = v;
     q.push(u);
@@ -23,17 +22,15 @@ int bfs(int u, int v)
         q.pop();
         for (int i : graph[curr])
         {
-            if (idx[i] ^ level)
+
+            if (!vis[i])
             {
-                if (!vis[i])
-                {
-                    vis[i] = 1;
-                    dist[i] = dist[curr] + 1;
-                    from[i] = from[curr];
-                    idx[i] = level;
-                    q.push(i);
-                }
+                vis[i] = 1;
+                dist[i] = dist[curr] + 1;
+                from[i] = from[curr];
+                q.push(i);
             }
+
             else if (from[i] ^ from[curr])
                 return dist[i] + dist[curr] + 1;
         }
@@ -85,21 +82,18 @@ int main()
         addEdge(a,b);
         unionSet(a,b);
     }
-    for(int i=0; i<q; i++)
+    while(q--)
     {
 
         int a,b;
         cin>>a>>b;
         if(a==b)
-            cout<<0<<endl;
+            printf("0\n");
         else if(findSet(b)!=findSet(a))
-            cout<<-1<<endl;
+            printf("-1\n");
         else
-        {
-            ++level;
-            int pr=bfs(a,b);
-            cout<<pr<<endl;
-        }
+            printf("%d\n",bfs(a,b));
     }
+
     return 0;
 }
