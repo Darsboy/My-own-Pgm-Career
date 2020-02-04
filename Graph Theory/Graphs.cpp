@@ -1,41 +1,40 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define MAXN 100005
+#define level 18
 #define INF 0x3f
-
+int n,m,q;
 vector <int> graph[MAXN];
-int dist[MAXN], from[MAXN];
-bool vis[MAXN];
+int arr[2][MAXN];
 int bfs(int u, int v)
 {
-    queue<int> q;
-    memset(vis, 0, sizeof(vis));
-    vis[u] = vis[v] = 1;
-    dist[u] = dist[v] = 0;
-    from[u] = u;
-    from[v] = v;
-    q.push(u);
-    q.push(v);
-    while (!q.empty())
+
+    memset(arr,-1,sizeof(arr));
+    int nv=-1;
+    deque<pair<int,bool>>q;
+    arr[0][u]=arr[1][v]=0;
+    q.emplace_back(u,0);
+    q.emplace_back(v,1);
+    while(!q.empty())
     {
-        int curr = q.front();
-        q.pop();
-        for (int i : graph[curr])
+        pair<int,bool> cur=q.front();
+        q.pop_front();
+        for(int fut:graph[cur.first])
         {
-
-            if (!vis[i])
+            if(arr[cur.second][fut]==-1)
             {
-                vis[i] = 1;
-                dist[i] = dist[curr] + 1;
-                from[i] = from[curr];
-                q.push(i);
+                arr[cur.second][fut]=arr[cur.second][cur.first]+1;
+                if(arr[!cur.second][fut]!=nv)
+                {
+                    return (arr[!cur.second][fut]+arr[cur.second][fut]);
+                }
+                q.emplace_back(fut,cur.second);
             }
-
-            else if (from[i] ^ from[curr])
-                return dist[i] + dist[curr] + 1;
         }
     }
 }
+
+
 void addEdge(int u,int v)
 {
     graph[u].push_back(v);
@@ -44,7 +43,7 @@ void addEdge(int u,int v)
 int p[MAXN];
 void setUp()
 {
-    for(int i=0; i<MAXN; i++)
+    for(int i=0; i<=n; i++)
     {
         p[i]=i;
     }
@@ -59,22 +58,23 @@ bool unionSet(int u,int v)
 {
     u=findSet(u);
     v=findSet(v);
-    if(u^v)
+    if(u!=v)
     {
         p[u]=v;
         return 1;
     }
     return 0;
 }
+
 // driver function
 int main()
 {
-    cin.sync_with_stdio(0);
+    ios_base::sync_with_stdio(false);
     cin.tie(0);
-    cout.tie(0);
-    setUp();
-    int n,m,q;
+    
+    
     cin>>n>>m>>q;
+    setUp();
     for(int i=0; i<m; i++)
     {
         int a,b;
@@ -82,15 +82,15 @@ int main()
         addEdge(a,b);
         unionSet(a,b);
     }
-    while(q--)
+    for(int i=0; i<q; i++)
     {
 
         int a,b;
         cin>>a>>b;
-        if(a==b)
-            printf("0\n");
-        else if(findSet(b)!=findSet(a))
+        if(findSet(b)!=findSet(a))
             printf("-1\n");
+        else if(a==b)
+            printf("0\n");
         else
             printf("%d\n",bfs(a,b));
     }
