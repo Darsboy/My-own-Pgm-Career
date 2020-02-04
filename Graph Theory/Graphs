@@ -1,102 +1,105 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define MAXN 100000
-#define level 18
+#define MAXN 100005
 #define INF 0x3f
 
 vector <int> graph[MAXN];
-int arr[2][MAXN];
+int dist[MAXN], from[MAXN],idx[MAXN], level;
+bool vis[MAXN];
 int bfs(int u, int v)
 {
-
-    memset(arr,INF,sizeof(arr));
-    int nv=arr[0][0];
-    queue<int>q[2];
-    arr[0][u]=arr[1][v]=0;
-    q[0].push(u);
-    q[1].push(v);
-    while(!(q[1].empty()&&q[0].empty()))
+    queue<int> q;
+    memset(vis, 0, sizeof(vis));
+    vis[u] = vis[v] = 1;
+    dist[u] = dist[v] = 0;
+    idx[u] = idx[v] = level;
+    from[u] = u;
+    from[v] = v;
+    q.push(u);
+    q.push(v);
+    while (!q.empty())
     {
-        if(!q[0].empty())
+        int curr = q.front();
+        q.pop();
+        for (int i : graph[curr])
         {
-            bool queueNum=0;
-            int cur=q[queueNum].front();
-
-            q[queueNum].pop();
-            for(int fut:graph[cur])
+            if (idx[i] ^ level)
             {
-                if(arr[queueNum][fut]>arr[queueNum][cur]+1)
+                if (!vis[i])
                 {
-                    arr[queueNum][fut]=arr[queueNum][cur]+1;
-                    if(arr[!queueNum][fut]!=nv&&arr[queueNum][fut]!=nv)
-                    {
-                        printf("q1 fut=%d %d %d\n",fut,arr[!queueNum][fut],arr[queueNum][fut]);
-                        return (arr[!queueNum][fut]+arr[queueNum][fut]);
-                    }
-                    q[queueNum].push(fut);
+                    vis[i] = 1;
+                    dist[i] = dist[curr] + 1;
+                    from[i] = from[curr];
+                    idx[i] = level;
+                    q.push(i);
                 }
             }
+            else if (from[i] ^ from[curr])
+                return dist[i] + dist[curr] + 1;
         }
-        if(!q[1].empty())
-        {
-            bool queueNum=1;
-            int cur=q[queueNum].front();
-
-            q[queueNum].pop();
-            for(int fut:graph[cur])
-            {
-
-                if(arr[queueNum][fut]>arr[queueNum][cur]+1)
-                {
-                    arr[queueNum][fut]=arr[queueNum][cur]+1;
-                    if(arr[!queueNum][fut]!=nv&&arr[queueNum][fut]!=nv)
-                    {
-
-                        printf("q2 fut=%d %d %d\n",fut,arr[!queueNum][fut],arr[queueNum][fut]);
-                        return (arr[!queueNum][fut]+arr[queueNum][fut]);
-                    }
-                    q[queueNum].push(fut);
-                }
-            }
-        }
-
     }
 }
-
 void addEdge(int u,int v)
 {
     graph[u].push_back(v);
     graph[v].push_back(u);
 }
-
+int p[MAXN];
+void setUp()
+{
+    for(int i=0; i<MAXN; i++)
+    {
+        p[i]=i;
+    }
+}
+int findSet(int i)
+{
+    if(i==p[i])
+        return i;
+    return p[i]=findSet(p[i]);
+}
+bool unionSet(int u,int v)
+{
+    u=findSet(u);
+    v=findSet(v);
+    if(u^v)
+    {
+        p[u]=v;
+        return 1;
+    }
+    return 0;
+}
 // driver function
 int main()
 {
-
+    cin.sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    setUp();
     int n,m,q;
-    scanf("%d %d %d",&n,&m,&q);
+    cin>>n>>m>>q;
     for(int i=0; i<m; i++)
     {
         int a,b;
-        scanf("%d %d",&a,&q);
+        cin>>a>>b;
         addEdge(a,b);
-
+        unionSet(a,b);
     }
-    while(1)
+    for(int i=0; i<q; i++)
     {
 
         int a,b;
         cin>>a>>b;
-        printf("distance(%d, %d) = %d \n",a,b,bfs(a,b));
-        for(int i=0; i<2; i++)
+        if(a==b)
+            cout<<0<<endl;
+        else if(findSet(b)!=findSet(a))
+            cout<<-1<<endl;
+        else
         {
-            for(int j=0; j<=5; j++)
-            {
-                printf("%d ",arr[i][j]);
-            }
-            printf("\n");
+            ++level;
+            int pr=bfs(a,b);
+            cout<<pr<<endl;
         }
     }
-
     return 0;
 }
